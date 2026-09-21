@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { GeometricLoop } from '../components/HennaMotifs';
 
-const pageVariants = {
+const pageVariants: any = {
   initial: { opacity: 0, scale: 0.95 },
   in: { opacity: 1, scale: 1 },
   out: { opacity: 0, scale: 1.05 }

@@ -4,14 +4,14 @@ import { Link } from 'react-router-dom';
 import Reviews from '../components/Reviews';
 import MandalaAnimation from '../components/MandalaAnimation';
 
-const pageVariants = {
+const pageVariants: any = {
   initial: { opacity: 0, y: 20 },
   in: { opacity: 1, y: 0 },
   out: { opacity: 0, y: -20 }
 };
 
-const pageTransition = {
-  type: 'tween',
+const pageTransition: any = {
+  type: 'tween' as const,
   ease: 'anticipate',
   duration: 0.5
 };
@@ -52,12 +52,12 @@ const HennaIcon: React.FC<{ type: string }> = ({ type }) => {
   }
 };
 
-const counterVariants = {
+const counterVariants: any = {
   hidden: { opacity: 0, y: 30 },
   visible: (i: number) => ({
     opacity: 1,
     y: 0,
-    transition: { delay: i * 0.2, type: 'spring', stiffness: 50 }
+    transition: { delay: i * 0.2, type: 'spring' as const, stiffness: 50 }
   })
 };
 

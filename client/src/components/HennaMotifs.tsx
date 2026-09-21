@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 
 // Continuous drawing animation config
-const drawContinuous = {
+const drawContinuous: any = {
   hidden: { pathLength: 0, opacity: 0 },
   visible: (i: number) => ({
     pathLength: [0, 1, 1, 0],
@@ -14,7 +14,7 @@ const drawContinuous = {
   })
 };
 
-const spinContinuous = {
+const spinContinuous: any = {
   hidden: { rotate: 0 },
   visible: {
     rotate: 360,
@@ -22,7 +22,7 @@ const spinContinuous = {
   }
 };
 
-const pulseContinuous = {
+const pulseContinuous: any = {
   hidden: { scale: 1, opacity: 0.5 },
   visible: {
     scale: [1, 1.05, 1],

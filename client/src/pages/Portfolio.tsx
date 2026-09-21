@@ -9,14 +9,14 @@ interface PortfolioItem {
   description: string;
 }
 
-const pageVariants = {
+const pageVariants: any = {
   initial: { opacity: 0, x: -50 },
   in: { opacity: 1, x: 0 },
   out: { opacity: 0, x: 50 }
 };
 
-const pageTransition = {
-  type: 'tween',
+const pageTransition: any = {
+  type: 'tween' as const,
   ease: 'anticipate',
   duration: 0.5
 };
@@ -31,9 +31,9 @@ const containerVariants = {
   }
 };
 
-const itemVariants = {
+const itemVariants: any = {
   hidden: { opacity: 0, y: 50 },
-  show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 50 } }
+  show: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 50 } }
 };
 
 const Portfolio: React.FC = () => {

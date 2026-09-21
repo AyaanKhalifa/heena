@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { VineLoop } from '../components/HennaMotifs';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
-const pageVariants = {
+const pageVariants: any = {
   initial: { opacity: 0, scale: 0.95 },
   in: { opacity: 1, scale: 1 },
   out: { opacity: 0, scale: 1.05 }

@@ -2,13 +2,13 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { MandalaLoop } from '../components/HennaMotifs';
 
-const pageVariants = {
+const pageVariants: any = {
   initial: { opacity: 0, scale: 0.95 },
   in: { opacity: 1, scale: 1 },
   out: { opacity: 0, scale: 1.05 }
 };
 
-const pageTransition = {
+const pageTransition: any = {
   type: 'tween',
   ease: 'anticipate',
   duration: 0.5

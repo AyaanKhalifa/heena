@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-const draw = {
+const draw: any = {
   hidden: { pathLength: 0, opacity: 0 },
   visible: (i: number) => {
     const delay = i * 0.5;

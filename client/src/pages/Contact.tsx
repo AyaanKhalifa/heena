@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { FaPhoneAlt, FaEnvelope, FaMapMarkerAlt, FaCalendarAlt } from 'react-icons/fa';
+import { FaPhoneAlt, FaMapMarkerAlt, FaCalendarAlt } from 'react-icons/fa';
 import { GeometricLoop, VineLoop } from '../components/HennaMotifs';
 import { useAuth } from '../context/AuthContext';
 
-const pageVariants = {
+const pageVariants: any = {
   initial: { opacity: 0, scale: 0.95 },
   in: { opacity: 1, scale: 1 },
   out: { opacity: 0, scale: 1.05 }
 };
 
-const pageTransition = {
+const pageTransition: any = {
   type: 'tween',
   ease: 'anticipate',
   duration: 0.5
