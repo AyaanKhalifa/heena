@@ -1,0 +1,199 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+
+:root {
+  --color-henna-dark: #3E1E1C;
+  --color-henna-rich: #5E211F;
+  --color-henna-light: #8B3A36;
+  --color-gold: #D4AF37;
+  --color-gold-light: #E8CA72;
+  --color-cream: #F9F6F0;
+  --color-text: #222222;
+  
+  --font-heading: 'Playfair Display', serif;
+  --font-body: 'Lato', sans-serif;
+  
+  --transition-smooth: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  --transition-slow: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-cream);
+  color: var(--color-text);
+  line-height: 1.6;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  color: var(--color-henna-dark);
+  font-weight: 600;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes drawMandala {
+  0% { transform: scale(0.8) rotate(0deg); opacity: 0; }
+  50% { transform: scale(1.1) rotate(180deg); opacity: 1; }
+  100% { transform: scale(1) rotate(360deg); opacity: 1; }
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: var(--transition-slow);
+}
+
+.reveal.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Buttons */
+.btn-primary {
+  display: inline-block;
+  background-color: var(--color-henna-rich);
+  color: var(--color-cream);
+  padding: 12px 28px;
+  text-decoration: none;
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  border: 1px solid var(--color-henna-rich);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.btn-primary:hover {
+  background-color: var(--color-gold);
+  border-color: var(--color-gold);
+  color: var(--color-henna-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4);
+}
+
+.btn-outline {
+  display: inline-block;
+  background-color: transparent;
+  color: var(--color-henna-rich);
+  padding: 12px 28px;
+  text-decoration: none;
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  border: 1px solid var(--color-henna-rich);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.btn-outline:hover {
+  background-color: var(--color-henna-rich);
+  color: var(--color-cream);
+  transform: translateY(-2px);
+}
+
+/* Layout Utility */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+section {
+  padding: 80px 0;
+}
+
+/* Navigation - Desktop links visible */
+.nav-links-desktop {
+  display: flex;
+  gap: 2rem;
+}
+
+/* Hamburger hidden on desktop */
+.hamburger-btn {
+  display: none !important;
+}
+
+/* Mobile menu hidden by default (controlled by framer-motion) */
+.mobile-menu {
+  display: none;
+}
+
+/* ==============================
+   RESPONSIVE STYLES
+   ============================== */
+
+/* Tablet */
+@media (max-width: 968px) {
+  .nav-links-desktop {
+    display: none !important;
+  }
+  
+  .hamburger-btn {
+    display: block !important;
+  }
+
+  .mobile-menu {
+    display: flex !important;
+  }
+
+  .navbar {
+    padding: 15px 20px !important;
+  }
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  h1 {
+    font-size: clamp(2rem, 8vw, 3.5rem) !important;
+  }
+
+  h2 {
+    font-size: clamp(1.5rem, 6vw, 2.5rem) !important;
+  }
+
+  .container {
+    padding: 0 15px;
+  }
+
+  section {
+    padding: 60px 0;
+  }
+
+  .btn-primary, .btn-outline {
+    padding: 10px 22px;
+    font-size: 1rem;
+  }
+
+  /* Stack form rows on mobile */
+  .form-row {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Footer responsive */
+  footer {
+    padding: 40px 20px 15px !important;
+  }
+}
+
+/* Very small screens */
+@media (max-width: 380px) {
+  .navbar {
+    padding: 12px 15px !important;
+  }
+
+  h1 {
+    font-size: 1.8rem !important;
+  }
+}
