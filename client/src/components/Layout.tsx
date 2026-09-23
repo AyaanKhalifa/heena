@@ -187,9 +187,9 @@ const Layout: React.FC = () => {
         }}
       >
         {user && (
-          <div style={{ paddingBottom: '1rem', borderBottom: '1px solid #ddd', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-henna-dark)' }}>
+          <Link to="/profile" onClick={() => setMenuOpen(false)} style={{ textDecoration: 'none', paddingBottom: '1rem', borderBottom: '1px solid #ddd', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-henna-dark)' }}>
              <FaUser /> <b>{user.name}</b>
-          </div>
+          </Link>
         )}
 
         {navLinks.map(link => (

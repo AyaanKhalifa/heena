@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { FaPhoneAlt, FaMapMarkerAlt, FaCalendarAlt } from 'react-icons/fa';
 import { GeometricLoop, VineLoop } from '../components/HennaMotifs';
 import { useAuth } from '../context/AuthContext';
+import { Link } from 'react-router-dom';
 
 const pageVariants: any = {
   initial: { opacity: 0, scale: 0.95 },
@@ -170,80 +171,94 @@ const Contact: React.FC = () => {
             viewport={{ once: true }}
             style={{ backgroundColor: '#fff', padding: '3rem', borderRadius: '12px', boxShadow: '0 10px 30px rgba(0,0,0,0.08)', border: '1px solid #f0f0f0' }}
           >
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-              <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: 'var(--color-henna-dark)' }}>Full Name *</label>
-                <input 
-                  type="text" name="name" value={formData.name} onChange={handleChange} required 
-                  style={getInputStyle('name')}
-                  onFocus={() => setFocusedField('name')} onBlur={() => setFocusedField('')} 
-                />
-              </div>
-              
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(200px, 100%), 1fr))', gap: '1.5rem' }}>
+            {user ? (
+              <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                 <div>
-                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: 'var(--color-henna-dark)' }}>Email Address (Optional)</label>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: 'var(--color-henna-dark)' }}>Full Name *</label>
                   <input 
-                    type="email" name="email" value={formData.email} onChange={handleChange}
-                    style={getInputStyle('email')}
-                    onFocus={() => setFocusedField('email')} onBlur={() => setFocusedField('')} 
+                    type="text" name="name" value={formData.name} onChange={handleChange} required 
+                    style={getInputStyle('name')}
+                    onFocus={() => setFocusedField('name')} onBlur={() => setFocusedField('')} 
                   />
                 </div>
+                
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(200px, 100%), 1fr))', gap: '1.5rem' }}>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: 'var(--color-henna-dark)' }}>Email Address (Optional)</label>
+                    <input 
+                      type="email" name="email" value={formData.email} onChange={handleChange}
+                      style={getInputStyle('email')}
+                      onFocus={() => setFocusedField('email')} onBlur={() => setFocusedField('')} 
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: 'var(--color-henna-dark)' }}>Phone Number *</label>
+                    <input 
+                      type="tel" name="phone" value={formData.phone} onChange={handleChange} required 
+                      style={getInputStyle('phone')}
+                      onFocus={() => setFocusedField('phone')} onBlur={() => setFocusedField('')} 
+                    />
+                  </div>
+                </div>
+                
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(200px, 100%), 1fr))', gap: '1.5rem' }}>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: 'var(--color-henna-dark)' }}>Event Date *</label>
+                    <input 
+                      type="date" name="date" value={formData.date} onChange={handleChange} required 
+                      style={getInputStyle('date')}
+                      onFocus={() => setFocusedField('date')} onBlur={() => setFocusedField('')} 
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: 'var(--color-henna-dark)' }}>Service Type *</label>
+                    <select 
+                      name="services" value={formData.services} onChange={handleChange} required
+                      style={getInputStyle('services')}
+                      onFocus={() => setFocusedField('services')} onBlur={() => setFocusedField('')}
+                    >
+                      <option value="Bridal Mehndi">Bridal Mehndi</option>
+                      <option value="Festival Mehndi">Festival Mehndi</option>
+                      <option value="Party Mehndi">Party Mehndi</option>
+                      <option value="Custom Heena Design">Custom Heena Design</option>
+                    </select>
+                  </div>
+                </div>
+                
                 <div>
-                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: 'var(--color-henna-dark)' }}>Phone Number *</label>
-                  <input 
-                    type="tel" name="phone" value={formData.phone} onChange={handleChange} required 
-                    style={getInputStyle('phone')}
-                    onFocus={() => setFocusedField('phone')} onBlur={() => setFocusedField('')} 
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: 'var(--color-henna-dark)' }}>Additional Details</label>
+                  <textarea 
+                    name="message" value={formData.message} onChange={handleChange} rows={4} 
+                    style={{ ...getInputStyle('message'), resize: 'vertical' }}
+                    onFocus={() => setFocusedField('message')} onBlur={() => setFocusedField('')} 
                   />
                 </div>
-              </div>
-              
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(200px, 100%), 1fr))', gap: '1.5rem' }}>
-                <div>
-                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: 'var(--color-henna-dark)' }}>Event Date *</label>
-                  <input 
-                    type="date" name="date" value={formData.date} onChange={handleChange} required 
-                    style={getInputStyle('date')}
-                    onFocus={() => setFocusedField('date')} onBlur={() => setFocusedField('')} 
-                  />
+                
+                {status && <p style={{ color: status.includes('Failed') || status.includes('error') ? 'red' : 'green', margin: 0, fontWeight: 'bold', textAlign: 'center' }}>{status}</p>}
+                
+                <motion.button 
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  type="submit" 
+                  className="btn-primary" 
+                  style={{ width: '100%', padding: '15px', borderRadius: '8px', fontSize: '1.1rem' }}
+                >
+                  Submit Request
+                </motion.button>
+              </form>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '2rem 1rem' }}>
+                <h3 style={{ color: 'var(--color-henna-dark)', marginBottom: '1rem', fontSize: '1.5rem' }}>Login Required</h3>
+                <p style={{ color: '#666', marginBottom: '2rem', lineHeight: '1.6' }}>
+                  Please log in or create an account to book a henna appointment. 
+                  This helps us keep track of your requests and send you important updates.
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: '200px', margin: '0 auto' }}>
+                  <Link to="/login" className="btn-primary" style={{ padding: '12px' }}>Login</Link>
+                  <Link to="/signup" className="btn-outline" style={{ padding: '12px' }}>Sign Up</Link>
                 </div>
-                <div>
-                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: 'var(--color-henna-dark)' }}>Service Type *</label>
-                  <select 
-                    name="services" value={formData.services} onChange={handleChange} required
-                    style={getInputStyle('services')}
-                    onFocus={() => setFocusedField('services')} onBlur={() => setFocusedField('')}
-                  >
-                    <option value="Bridal Mehndi">Bridal Mehndi</option>
-                    <option value="Festival Mehndi">Festival Mehndi</option>
-                    <option value="Party Mehndi">Party Mehndi</option>
-                    <option value="Custom Heena Design">Custom Heena Design</option>
-                  </select>
-                </div>
               </div>
-              
-              <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', color: 'var(--color-henna-dark)' }}>Additional Details</label>
-                <textarea 
-                  name="message" value={formData.message} onChange={handleChange} rows={4} 
-                  style={{ ...getInputStyle('message'), resize: 'vertical' }}
-                  onFocus={() => setFocusedField('message')} onBlur={() => setFocusedField('')} 
-                />
-              </div>
-              
-              {status && <p style={{ color: status.includes('Failed') || status.includes('error') ? 'red' : 'green', margin: 0, fontWeight: 'bold', textAlign: 'center' }}>{status}</p>}
-              
-              <motion.button 
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                type="submit" 
-                className="btn-primary" 
-                style={{ width: '100%', padding: '15px', borderRadius: '8px', fontSize: '1.1rem' }}
-              >
-                Submit Request
-              </motion.button>
-            </form>
+            )}
           </motion.div>
           
         </div>
