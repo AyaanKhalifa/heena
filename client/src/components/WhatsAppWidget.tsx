@@ -7,7 +7,8 @@ const WhatsAppWidget: React.FC = () => {
   const phoneNumber = '917623084408'; // from the user request
   const message = 'Hello Amira! I would like to book a henna appointment.';
   
-  const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+  const whatsappUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
   return (
     <div style={{ position: 'fixed', bottom: '30px', right: '30px', zIndex: 1000 }}>
@@ -64,7 +65,7 @@ const WhatsAppWidget: React.FC = () => {
             <div style={{ padding: '16px', backgroundColor: '#111' }}>
               <a 
                 href={whatsappUrl} 
-                target="_blank" 
+                target={isMobile ? "_self" : "_blank"} 
                 rel="noopener noreferrer"
                 style={{
                   display: 'flex',

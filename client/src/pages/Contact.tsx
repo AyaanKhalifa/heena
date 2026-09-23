@@ -151,7 +151,7 @@ const Contact: React.FC = () => {
               <div style={{ color: 'var(--color-gold)', fontSize: '1.5rem', marginTop: '3px' }}><FaPhoneAlt /></div>
               <div>
                 <h4 style={{ margin: '0 0 5px', color: 'var(--color-henna-dark)' }}>Phone / WhatsApp</h4>
-                <p style={{ margin: 0, color: '#666' }}>+91 123 456 7890</p>
+                <p style={{ margin: 0, color: '#666' }}>+91 76230 84408</p>
               </div>
             </div>
             
