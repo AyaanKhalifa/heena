@@ -478,10 +478,13 @@ const AdminDashboard: React.FC = () => {
                   <div style={{ flex: '1 1 200px' }}>
                     <label style={{ display: 'block', fontSize: '0.85rem', color: '#666', marginBottom: '5px' }}>Upload Image (from Device)</label>
                     <input 
-                      type="file" accept="image/*"
+                      type="file" accept="image/jpeg, image/png, image/webp"
                       onChange={e => setPortfolioFile(e.target.files ? e.target.files[0] : null)}
                       style={{ padding: '8px', border: '1px solid #ccc', borderRadius: '4px', width: '100%', boxSizing: 'border-box' }}
                     />
+                    <small style={{ color: '#999', fontSize: '0.75rem', display: 'block', marginTop: '4px' }}>
+                      Supported formats: JPG, PNG, WEBP
+                    </small>
                   </div>
                   <div style={{ flex: '0 0 auto', color: '#999', fontWeight: 'bold', paddingTop: '20px' }}>OR</div>
                   <div style={{ flex: '1 1 200px' }}>
