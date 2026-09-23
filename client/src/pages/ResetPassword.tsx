@@ -33,13 +33,13 @@ const ResetPassword: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const query = new URLSearchParams(location.search);
-  const token = query.get('token');
+  const oobCode = query.get('oobCode');
 
   useEffect(() => {
-    if (!token) {
-      setStatus('Invalid or missing token.');
+    if (!oobCode) {
+      setStatus('Invalid or missing reset code.');
     }
-  }, [token]);
+  }, [oobCode]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,22 +49,19 @@ const ResetPassword: React.FC = () => {
       return setStatus('Passwords do not match');
     }
     
+    if (!oobCode) return;
+
     try {
-      const res = await fetch('http://localhost:5000/api/auth/reset-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, password })
-      });
-      const data = await res.json();
+      const { confirmPasswordReset } = await import('firebase/auth');
+      const { auth } = await import('../firebase');
       
-      if (res.ok && data.success) {
-        setStatus('Password has been successfully reset. Redirecting to login...');
-        setTimeout(() => navigate('/login'), 2000);
-      } else {
-        setStatus(data.error || 'Failed to reset password.');
-      }
-    } catch (err) {
-      setStatus('Server error, please try again later');
+      await confirmPasswordReset(auth, oobCode, password);
+      
+      setStatus('Password has been successfully reset. Redirecting to login...');
+      setTimeout(() => navigate('/login'), 2000);
+    } catch (err: any) {
+      console.error(err);
+      setStatus(err.message || 'Failed to reset password. The link might be expired.');
     }
   };
 
@@ -93,8 +90,8 @@ const ResetPassword: React.FC = () => {
           <h2 style={{ textAlign: 'center', fontSize: '2.5rem', marginBottom: '0.5rem' }}>Set New Password</h2>
           <p style={{ textAlign: 'center', color: '#666', marginBottom: '2rem' }}>Enter your new password below.</p>
           
-          {!token ? (
-            <p style={{ textAlign: 'center', color: 'red', fontWeight: 'bold' }}>Invalid or missing token.</p>
+          {!oobCode ? (
+            <p style={{ textAlign: 'center', color: 'red', fontWeight: 'bold' }}>Invalid or missing reset code.</p>
           ) : (
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               <div>

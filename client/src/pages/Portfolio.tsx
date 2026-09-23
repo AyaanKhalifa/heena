@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { PaisleyLoop } from '../components/HennaMotifs';
 
 interface PortfolioItem {
-  id: number;
+  id: string;
   image_url: string;
   title: string;
   description: string;
@@ -43,11 +43,15 @@ const Portfolio: React.FC = () => {
   useEffect(() => {
     const fetchPortfolio = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/portfolio');
-        if (res.ok) {
-          const data = await res.json();
-          setItems(data);
-        }
+        const { collection, getDocs, orderBy, query } = await import('firebase/firestore');
+        const { db } = await import('../firebase');
+        const q = query(collection(db, 'portfolio'), orderBy('created_at', 'desc'));
+        const querySnapshot = await getDocs(q);
+        const fetchedItems: PortfolioItem[] = [];
+        querySnapshot.forEach((doc) => {
+          fetchedItems.push({ id: doc.id, ...doc.data() } as PortfolioItem);
+        });
+        setItems(fetchedItems);
       } catch (err) {
         console.error('Error fetching portfolio:', err);
       } finally {

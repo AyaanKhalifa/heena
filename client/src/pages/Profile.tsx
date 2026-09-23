@@ -1,33 +1,24 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import { GeometricLoop } from '../components/HennaMotifs';
-
-interface Booking {
-  id: number;
-  event_date: string;
-  service_type: string;
-  status: string;
-  created_at: string;
-}
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { updatePassword, EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
+import { auth, db } from '../firebase';
 
 const pageVariants: any = {
-  initial: { opacity: 0, scale: 0.95 },
-  in: { opacity: 1, scale: 1 },
-  out: { opacity: 0, scale: 1.05 }
+  initial: { opacity: 0, y: 20 },
+  in: { opacity: 1, y: 0 },
+  out: { opacity: 0, y: -20 }
 };
 
-const pageTransition: any = {
-  type: 'tween' as const,
-  ease: 'anticipate',
-  duration: 0.5
-};
+const pageTransition: any = { type: 'tween', ease: 'anticipate', duration: 0.5 };
 
 const Profile: React.FC = () => {
-  const { user, logout, token } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [bookings, setBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Password update state
@@ -45,13 +36,10 @@ const Profile: React.FC = () => {
 
     const fetchBookings = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/bookings', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setBookings(data);
-        }
+        const q = query(collection(db, 'bookings'), where('email', '==', user.email));
+        const querySnapshot = await getDocs(q);
+        const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setBookings(data);
       } catch (error) {
         console.error("Error fetching bookings:", error);
       } finally {
@@ -60,7 +48,7 @@ const Profile: React.FC = () => {
     };
 
     fetchBookings();
-  }, [user, navigate, token]);
+  }, [user, navigate]);
 
   const handleLogout = () => {
     logout();
@@ -80,26 +68,19 @@ const Profile: React.FC = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/update-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ oldPassword, newPassword })
-      });
-      
-      const data = await response.json();
-      if (response.ok) {
+      const currentUser = auth.currentUser;
+      if (currentUser && currentUser.email) {
+        const credential = EmailAuthProvider.credential(currentUser.email, oldPassword);
+        await reauthenticateWithCredential(currentUser, credential);
+        await updatePassword(currentUser, newPassword);
+        
         setPasswordSuccess('Password updated successfully!');
         setOldPassword('');
         setNewPassword('');
         setConfirmPassword('');
-      } else {
-        setPasswordError(data.error || 'Failed to update password');
       }
-    } catch (error) {
-      setPasswordError('Server error');
+    } catch (error: any) {
+      setPasswordError(error.message || 'Failed to update password');
     }
   };
 
@@ -148,9 +129,9 @@ const Profile: React.FC = () => {
               {bookings.map(booking => (
                 <div key={booking.id} style={{ padding: '1.5rem', border: '1px solid #eee', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
                   <div>
-                    <h4 style={{ color: 'var(--color-henna-rich)', marginBottom: '0.5rem', fontSize: '1.2rem' }}>{booking.service_type}</h4>
-                    <p style={{ color: '#666', margin: 0 }}>Date: {new Date(booking.event_date).toLocaleDateString()}</p>
-                    <p style={{ color: '#999', fontSize: '0.85rem', margin: '5px 0 0' }}>Requested: {new Date(booking.created_at).toLocaleDateString()}</p>
+                    <h4 style={{ color: 'var(--color-henna-rich)', marginBottom: '0.5rem', fontSize: '1.2rem' }}>{booking.service_type || booking.service}</h4>
+                    <p style={{ color: '#666', margin: 0 }}>Date: {new Date(booking.event_date || booking.date).toLocaleDateString()}</p>
+                    <p style={{ color: '#999', fontSize: '0.85rem', margin: '5px 0 0' }}>Requested: {new Date(booking.created_at || booking.createdAt).toLocaleDateString()}</p>
                   </div>
                   <div style={{ 
                     padding: '8px 16px', 
@@ -160,7 +141,7 @@ const Profile: React.FC = () => {
                     backgroundColor: booking.status === 'approved' ? '#e6f4ea' : booking.status === 'rejected' ? '#fce8e6' : '#fef7e0',
                     color: booking.status === 'approved' ? '#137333' : booking.status === 'rejected' ? '#c5221f' : '#b08d00'
                   }}>
-                    {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
+                    {booking.status ? booking.status.charAt(0).toUpperCase() + booking.status.slice(1) : 'Pending'}
                   </div>
                 </div>
               ))}

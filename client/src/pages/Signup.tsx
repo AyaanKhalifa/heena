@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
 import { VineLoop } from '../components/HennaMotifs';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
@@ -29,7 +28,6 @@ const Signup: React.FC = () => {
   const [focusedField, setFocusedField] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -45,21 +43,31 @@ const Signup: React.FC = () => {
     }
     
     try {
-      const res = await fetch('http://localhost:5000/api/auth/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
-      const data = await res.json();
+      const { createUserWithEmailAndPassword } = await import('firebase/auth');
+      const { auth, db } = await import('../firebase');
+      const { doc, setDoc } = await import('firebase/firestore');
+
+      const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
       
-      if (res.ok && data.success) {
-        login(data.user, data.token);
-        navigate('/');
+      // Create user document in Firestore
+      await setDoc(doc(db, 'users', userCredential.user.uid), {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        role: 'user',
+        created_at: new Date().toISOString()
+      });
+
+      navigate('/');
+    } catch (err: any) {
+      console.error(err);
+      if (err.code === 'auth/email-already-in-use') {
+        setError('Email already in use');
+      } else if (err.code === 'auth/weak-password') {
+        setError('Password is too weak');
       } else {
-        setError(data.error || 'Signup failed');
+        setError('Signup failed, please try again later');
       }
-    } catch (err) {
-      setError('Server error, please try again later');
     }
   };
 

@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { db } from '../firebase';
+import { doc, getDoc } from 'firebase/firestore';
 import Reviews from '../components/Reviews';
 import MandalaAnimation from '../components/MandalaAnimation';
 
@@ -62,6 +64,30 @@ const counterVariants: any = {
 };
 
 const Home: React.FC = () => {
+  const [content, setContent] = useState({
+    heroHeading: 'Heena by Amira',
+    heroSubtext: 'Exquisite, personalized mehndi for your special moments. Based in Chikhli, Surkhai.'
+  });
+
+  useEffect(() => {
+    const fetchContent = async () => {
+      try {
+        const cDoc = await getDoc(doc(db, 'settings', 'website_content'));
+        if (cDoc.exists()) {
+          const data = cDoc.data();
+          setContent(prev => ({
+            ...prev,
+            heroHeading: data.heroHeading || prev.heroHeading,
+            heroSubtext: data.heroSubtext || prev.heroSubtext
+          }));
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchContent();
+  }, []);
+
   return (
     <motion.div
       initial="initial"
@@ -114,7 +140,7 @@ const Home: React.FC = () => {
             transition={{ delay: 0.2, duration: 0.8 }}
             style={{ color: 'var(--color-gold)', fontSize: '5rem', marginBottom: '1rem', textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}
           >
-            Heena by Amira
+            {content.heroHeading}
           </motion.h1>
           
           <motion.div
@@ -130,7 +156,7 @@ const Home: React.FC = () => {
             transition={{ delay: 0.6, duration: 0.8 }}
             style={{ fontSize: '1.4rem', marginBottom: '3rem', maxWidth: '700px', margin: '0 auto 3rem' }}
           >
-            Exquisite, personalized mehndi for your special moments. Based in Chikhli, Surkhai.
+            {content.heroSubtext}
           </motion.p>
           
           <motion.div 

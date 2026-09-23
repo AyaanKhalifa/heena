@@ -1,7 +1,10 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { auth, db } from '../firebase';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
 
-interface User {
-  id: number;
+export interface User {
+  id: string;
   name: string;
   email: string;
   role: string;
@@ -9,8 +12,7 @@ interface User {
 
 interface AuthContextType {
   user: User | null;
-  token: string | null;
-  login: (userData: User, token: string) => void;
+  loading: boolean;
   logout: () => void;
 }
 
@@ -18,33 +20,70 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('henna_user');
-    const storedToken = localStorage.getItem('henna_token');
-    if (storedUser && storedToken) {
-      setUser(JSON.parse(storedUser));
-      setToken(storedToken);
+    let unsubscribe: any;
+    try {
+      unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+        if (firebaseUser) {
+          try {
+            // Fetch additional user details (like role and name) from Firestore
+            const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+            if (userDoc.exists()) {
+              const userData = userDoc.data();
+              setUser({
+                id: firebaseUser.uid,
+                email: firebaseUser.email || '',
+                name: userData.name || '',
+                role: userData.role || 'user'
+              });
+            } else {
+              // Fallback if no doc exists yet
+              setUser({
+                id: firebaseUser.uid,
+                email: firebaseUser.email || '',
+                name: 'User',
+                role: 'user'
+              });
+            }
+          } catch (error) {
+            console.error("Error fetching user data from Firestore", error);
+            setUser(null);
+          }
+        } else {
+          setUser(null);
+        }
+        setLoading(false);
+      }, (error) => {
+        console.error("onAuthStateChanged error", error);
+        setLoading(false);
+      });
+    } catch (e) {
+      console.error("Failed to set up auth listener", e);
+      setLoading(false);
     }
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
   }, []);
 
-  const login = (userData: User, tokenStr: string) => {
-    setUser(userData);
-    setToken(tokenStr);
-    localStorage.setItem('henna_user', JSON.stringify(userData));
-    localStorage.setItem('henna_token', tokenStr);
+  const logout = async () => {
+    try {
+      await signOut(auth);
+      setUser(null);
+    } catch (error) {
+      console.error("Error signing out", error);
+    }
   };
 
-  const logout = () => {
-    setUser(null);
-    setToken(null);
-    localStorage.removeItem('henna_user');
-    localStorage.removeItem('henna_token');
-  };
+  if (loading) {
+    return <div style={{ height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>Loading Auth...</div>;
+  }
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, logout }}>
       {children}
     </AuthContext.Provider>
   );
@@ -57,3 +96,4 @@ export const useAuth = () => {
   }
   return context;
 };
+

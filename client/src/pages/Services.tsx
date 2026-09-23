@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { VineLoop } from '../components/HennaMotifs';
+import { db } from '../firebase';
+import { collection, getDocs } from 'firebase/firestore';
 
 const pageVariants: any = {
   initial: { opacity: 0, x: 50 },
@@ -28,6 +30,25 @@ const cardVariants: any = {
 };
 
 const Services: React.FC = () => {
+  const [services, setServices] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const snapshot = await getDocs(collection(db, 'services'));
+        const data: any[] = [];
+        snapshot.forEach(doc => data.push({ id: doc.id, ...doc.data() }));
+        setServices(data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchServices();
+  }, []);
+
   return (
     <motion.div
       initial="initial"
@@ -55,39 +76,36 @@ const Services: React.FC = () => {
           Tailored henna experiences for every occasion.
         </motion.p>
         
-        <motion.div 
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true }}
-          style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(300px, 100%), 1fr))', gap: '2rem' }}
-        >
-          
-          <motion.div variants={cardVariants} whileHover={{ y: -10 }} style={{ backgroundColor: '#fff', padding: '2rem', borderRadius: '12px', boxShadow: '0 10px 30px rgba(0,0,0,0.05)', borderTop: '4px solid var(--color-gold)' }}>
-            <h3 style={{ color: 'var(--color-henna-dark)', fontSize: '1.8rem', marginBottom: '1rem' }}>Bridal Heena</h3>
-            <p style={{ color: '#666', marginBottom: '1.5rem', minHeight: '80px' }}>Intricate and dense designs covering hands, arms, and feet. Includes personalized elements like portraits or skylines.</p>
-            <p style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--color-henna-rich)', marginBottom: '1.5rem' }}>Starts at $250</p>
-            <ul style={{ listStylePosition: 'inside', color: '#555', marginBottom: '2rem', lineHeight: '2' }}>
-              <li>Full hands (front and back)</li>
-              <li>Half legs</li>
-              <li>Organic Paste Included</li>
-            </ul>
-            <a href="/contact" className="btn-outline" style={{ display: 'block', textAlign: 'center', width: '100%' }}>Book Bridal</a>
+        {loading ? (
+          <p style={{ textAlign: 'center' }}>Loading packages...</p>
+        ) : services.length === 0 ? (
+          <p style={{ textAlign: 'center' }}>No packages currently available.</p>
+        ) : (
+          <motion.div 
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true }}
+            style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(300px, 100%), 1fr))', gap: '2rem' }}
+          >
+            {services.map((svc, idx) => (
+              <motion.div 
+                key={svc.id} 
+                variants={cardVariants} 
+                whileHover={{ y: -10 }} 
+                style={{ backgroundColor: '#fff', padding: '2rem', borderRadius: '12px', boxShadow: '0 10px 30px rgba(0,0,0,0.05)', borderTop: `4px solid ${idx % 2 === 0 ? 'var(--color-gold)' : 'var(--color-henna-rich)'}` }}
+              >
+                <h3 style={{ color: 'var(--color-henna-dark)', fontSize: '1.8rem', marginBottom: '1rem' }}>{svc.title}</h3>
+                <p style={{ color: '#666', marginBottom: '1.5rem', minHeight: '80px' }}>{svc.description}</p>
+                <p style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--color-henna-rich)', marginBottom: '1.5rem' }}>{svc.price}</p>
+                <ul style={{ listStylePosition: 'inside', color: '#555', marginBottom: '2rem', lineHeight: '2' }}>
+                  {svc.features?.map((f: string, i: number) => <li key={i}>{f}</li>)}
+                </ul>
+                <a href="/contact" className="btn-outline" style={{ display: 'block', textAlign: 'center', width: '100%' }}>Book Now</a>
+              </motion.div>
+            ))}
           </motion.div>
-          
-          <motion.div variants={cardVariants} whileHover={{ y: -10 }} style={{ backgroundColor: '#fff', padding: '2rem', borderRadius: '12px', boxShadow: '0 10px 30px rgba(0,0,0,0.05)', borderTop: '4px solid var(--color-henna-rich)' }}>
-            <h3 style={{ color: 'var(--color-henna-dark)', fontSize: '1.8rem', marginBottom: '1rem' }}>Party Heena</h3>
-            <p style={{ color: '#666', marginBottom: '1.5rem', minHeight: '80px' }}>Elegant designs perfect for Sangeet guests, bridesmaids, or festival attendees.</p>
-            <p style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--color-henna-rich)', marginBottom: '1.5rem' }}>$100 / Hour</p>
-            <ul style={{ listStylePosition: 'inside', color: '#555', marginBottom: '2rem', lineHeight: '2' }}>
-              <li>Minimum 2 hours</li>
-              <li>10-15 simple designs per hour</li>
-              <li>Organic Paste Included</li>
-            </ul>
-            <a href="/contact" className="btn-outline" style={{ display: 'block', textAlign: 'center', width: '100%' }}>Book Party</a>
-          </motion.div>
-
-        </motion.div>
+        )}
       </div>
     </motion.div>
   );

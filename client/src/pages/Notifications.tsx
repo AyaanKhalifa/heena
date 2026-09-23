@@ -4,55 +4,21 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 const Notifications: React.FC = () => {
-  const { user, token } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!user) {
       navigate('/login');
       return;
     }
+    setNotifications([]);
+  }, [user, navigate]);
 
-    const fetchNotifications = async () => {
-      try {
-        const res = await fetch('http://localhost:5000/api/notifications', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        const data = await res.json();
-        if (res.ok) {
-          setNotifications(data);
-        }
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchNotifications();
-  }, [user, token, navigate]);
-
-  const markAsRead = async (id: number) => {
-    try {
-      const res = await fetch(`http://localhost:5000/api/notifications/${id}/read`, {
-        method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      if (res.ok) {
-        setNotifications(notifications.map(n => n.id === id ? { ...n, is_read: 1 } : n));
-      }
-    } catch (err) {
-      console.error(err);
-    }
+  const markAsRead = async () => {
+    // Stub
   };
-
-  if (loading) return <div style={{ padding: '100px 20px', textAlign: 'center' }}>Loading...</div>;
 
   return (
     <div style={{ padding: '100px 20px', flexGrow: 1, backgroundColor: '#f5f5f5' }}>
@@ -89,7 +55,7 @@ const Notifications: React.FC = () => {
                 </div>
                 {!notif.is_read && (
                   <button 
-                    onClick={() => markAsRead(notif.id)}
+                    onClick={() => markAsRead()}
                     style={{ background: 'none', border: '1px solid var(--color-gold)', color: 'var(--color-gold)', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer' }}
                   >
                     Mark as Read

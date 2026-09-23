@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
 import { MandalaLoop } from '../components/HennaMotifs';
-import { useAuth } from '../context/AuthContext';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const pageVariants: any = {
@@ -29,33 +28,56 @@ const Login: React.FC = () => {
   const [error, setError] = useState('');
   const [focusedField, setFocusedField] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    
     try {
-      const res = await fetch('http://localhost:5000/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      });
-      const data = await res.json();
-      
-      if (res.ok && data.success) {
-        login(data.user, data.token);
-        if (data.user.role === 'admin') {
-          navigate('/admin');
+      const { signInWithEmailAndPassword } = await import('firebase/auth');
+      const { auth, db } = await import('../firebase');
+      const { doc, getDoc, collection, query, where, getDocs } = await import('firebase/firestore');
+
+      let loginEmail = email.trim();
+
+      // If the input doesn't contain '@', assume it's a phone number and find the matching email
+      if (!loginEmail.includes('@')) {
+        const usersRef = collection(db, 'users');
+        const q = query(usersRef, where('phone', '==', loginEmail));
+        const querySnapshot = await getDocs(q);
+        
+        if (!querySnapshot.empty) {
+          // Use the first matched user's email
+          loginEmail = querySnapshot.docs[0].data().email;
         } else {
-          navigate('/');
+          // If no phone number matches, throw an error to trigger the catch block
+          const err: any = new Error('Invalid credentials');
+          err.code = 'auth/user-not-found';
+          throw err;
         }
-      } else {
-        setError(data.error || 'Login failed');
       }
-    } catch (err) {
-      setError('Server error, please try again later');
+
+      const userCredential = await signInWithEmailAndPassword(auth, loginEmail, password);
+      
+      // Fetch role to determine redirect
+      const userDoc = await getDoc(doc(db, 'users', userCredential.user.uid));
+      let role = 'user';
+      if (userDoc.exists()) {
+        role = userDoc.data().role || 'user';
+      }
+
+      if (role === 'admin' || role === 'super_admin') {
+        navigate('/admin');
+      } else {
+        navigate('/');
+      }
+    } catch (err: any) {
+      console.error(err);
+      if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+        setError('Invalid credentials');
+      } else {
+        setError('Login failed, please try again later');
+      }
     }
   };
 

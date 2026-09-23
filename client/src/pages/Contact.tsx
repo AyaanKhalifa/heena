@@ -51,22 +51,30 @@ const Contact: React.FC = () => {
     setStatus('Sending inquiry...');
     
     try {
-      const response = await fetch('http://localhost:5000/api/contact', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ ...formData, user_id: user ? user.id : null }),
+      const { collection, addDoc } = await import('firebase/firestore');
+      const { db } = await import('../firebase');
+      
+      await addDoc(collection(db, 'bookings'), {
+        ...formData,
+        user_id: user ? user.id : null,
+        status: 'pending',
+        created_at: new Date().toISOString()
       });
 
-      if (response.ok) {
-        setSuccessAnim(true);
-        setStatus('');
-        setFormData({ name: user?.name || '', email: user?.email || '', phone: '', date: '', services: 'Bridal Mehndi', message: '' });
-      } else {
-        setStatus('Failed to send inquiry. Please try again or call us.');
+      if (user) {
+        await addDoc(collection(db, 'notifications'), {
+          user_id: user.id,
+          message: `Your booking for ${formData.services} on ${formData.date} has been submitted.`,
+          is_read: 0,
+          created_at: new Date().toISOString()
+        });
       }
+
+      setSuccessAnim(true);
+      setStatus('');
+      setFormData({ name: user?.name || '', email: user?.email || '', phone: '', date: '', services: 'Bridal Mehndi', message: '' });
     } catch (error) {
+      console.error(error);
       setStatus('Network error. Please try again.');
     }
   };

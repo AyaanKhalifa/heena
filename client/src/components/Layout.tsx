@@ -4,13 +4,14 @@ import { motion, useScroll, useSpring } from 'framer-motion';
 import { FaInstagram, FaFacebookF, FaPinterestP, FaTiktok, FaYoutube, FaBars, FaTimes, FaUser, FaBell, FaSignOutAlt } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 import FloatingHenna from './FloatingHenna';
+import WhatsAppWidget from './WhatsAppWidget';
 
 const Layout: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, token, logout } = useAuth();
+  const { user, logout } = useAuth();
   const isHomePage = location.pathname === '/';
   
   const [unreadCount, setUnreadCount] = useState(0);
@@ -34,19 +35,11 @@ const Layout: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (user && token) {
-      fetch('http://localhost:5000/api/notifications', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      })
-        .then(res => res.json())
-        .then(data => {
-          if (Array.isArray(data)) {
-            setUnreadCount(data.filter(n => !n.is_read).length);
-          }
-        })
-        .catch(err => console.error(err));
+    if (user) {
+      // Notifications temporarily disabled during Firebase migration
+      setUnreadCount(0);
     }
-  }, [user, token, location.pathname]);
+  }, [user, location.pathname]);
 
   const handleLogout = () => {
     logout();
@@ -66,7 +59,7 @@ const Layout: React.FC = () => {
     { to: '/contact', label: 'Contact' }
   ];
 
-  if (user?.role === 'admin') {
+  if (user?.role === 'admin' || user?.role === 'super_admin') {
     navLinks.push({ to: '/admin', label: 'Dashboard' });
   }
 
@@ -250,6 +243,7 @@ const Layout: React.FC = () => {
               <li><Link to="/services" style={{ color: '#ccc', textDecoration: 'none' }}>Bridal Packages</Link></li>
               <li><Link to="/about" style={{ color: '#ccc', textDecoration: 'none' }}>About the Artist</Link></li>
               <li><Link to="/contact" style={{ color: '#ccc', textDecoration: 'none' }}>Book an Appointment</Link></li>
+              <li><Link to="/developer" style={{ color: 'var(--color-gold)', textDecoration: 'none', fontSize: '0.9em', marginTop: '10px', display: 'inline-block' }}>Developer & Designer</Link></li>
             </ul>
           </div>
 
@@ -277,6 +271,8 @@ const Layout: React.FC = () => {
           <p style={{ color: 'var(--color-gold)', marginTop: '5px' }}>Crafted with 100% Organic Heena</p>
         </div>
       </footer>
+
+      <WhatsAppWidget />
     </div>
   );
 };
