@@ -7,8 +7,10 @@ const WhatsAppWidget: React.FC = () => {
   const phoneNumber = '917623084408'; // from the user request
   const message = 'Hello Amira! I would like to book a henna appointment.';
   
-  const whatsappUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  const whatsappUrl = isMobile 
+    ? `whatsapp://send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`
+    : `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
 
   return (
     <div style={{ position: 'fixed', bottom: '30px', right: '30px', zIndex: 1000 }}>
