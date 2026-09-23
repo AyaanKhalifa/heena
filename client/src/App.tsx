@@ -55,8 +55,7 @@ const AnimatedRoutes: React.FC = () => {
     return <div style={{ height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', background: '#0a0a0a' }}></div>;
   }
 
-  // Allow everyone to view the developer page, and access the login page
-  const isPublicOverride = location.pathname === '/developer' || location.pathname.startsWith('/login');
+
   const isAuthorizedAdmin = user && (user.role === 'admin' || user.role === 'super_admin');
 
   return (
